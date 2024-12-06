@@ -60,4 +60,23 @@ set Profit = round((`Selling Price`-`cost Price`)*`Order Quantity`,2);
 
 
 
+use sales;
+
+create or replace view top_10_customers as
+select c.`Customer Names`, round(sum(o.`Total revenue`), 2) as `Total sales`,
+round(sum(o.Profit), 2) as `Total Profit`
+from orders o inner join customers c
+on o.`Customer Name Index` = c.`Customer Index`
+group by c.`Customer Names`
+order by `Total Profit` desc
+limit 10;
+
+
+
+select * from top_10_customers;
+
+
+
+
+
 
