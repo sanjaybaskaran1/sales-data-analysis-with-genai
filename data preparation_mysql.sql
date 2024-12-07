@@ -58,7 +58,7 @@ add column Profit double;
 update orders
 set Profit = round((`Selling Price`-`cost Price`)*`Order Quantity`,2);
 
-
+# lets create some views for report creation
 
 use sales;
 
@@ -78,5 +78,22 @@ select * from top_10_customers;
 
 
 
+create or replace view top_orders_placing_customers_by_city as
+with cte as 
+(
+select r.`City`,c.`Customer Names`,round(count(o.OrderNumber), 2) as `Total orders`,
+round(sum(o.Profit)) as `Total Profit`
+from orders o inner join customers c 
+on o.`Customer Name Index` = c.`Customer Index`
+inner join regions r on r.`Index` = o.`Region Index`
+group by r.`City`,c.`Customer Names`
+order by `Total orders` desc
+)
+(
+select `City`, `Customer Names`, `Total orders`, `Total Profit`,
+dense_rank() over(partition by `City` order by `Total Orders` desc) as `rank`
+from cte
+) ;
 
+select * from top_orders_placing_customers_by_city;
 
